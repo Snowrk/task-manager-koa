@@ -280,3 +280,27 @@ router.delete("/tasks/:id", authenticateToken, async (ctx) => {
 app.use(router.routes()).use(router.allowedMethods());
 
 app.listen(3000);
+
+process.on("SIGINT", async () => {
+  console.log("Gracefully shutting down...");
+  try {
+    await client.close(); // Close MongoDB connection
+    console.log("MongoDB connection closed");
+    process.exit(0); // Exit the process
+  } catch (err) {
+    console.error("Error while closing MongoDB connection", err);
+    process.exit(1); // Exit with failure code
+  }
+});
+
+process.on("SIGTERM", async () => {
+  console.log("Received SIGTERM, shutting down gracefully...");
+  try {
+    await client.close();
+    console.log("MongoDB connection closed");
+    process.exit(0);
+  } catch (err) {
+    console.error("Error while closing MongoDB connection", err);
+    process.exit(1);
+  }
+});
